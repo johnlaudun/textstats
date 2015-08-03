@@ -180,11 +180,11 @@ The second reason for splitting our text string into a list of words is the incr
 
 As an aid to reading, I have `sorted` the set above, but that's only for my human eyes. It's important to remember that sets themselves are not ordered and that we do not need them to be if all we are interested in is the count of items. It's nice to know, however, that you can use sort on lists and sets whenever you need or like. Here's what our text would look like sorted:
 
-
+```python
     print(sorted(split_text))
 
     ['a', 'a', 'a', 'a', 'a', 'a', 'and', 'and', 'and', 'appear', 'back', 'because', 'brothers', 'buried', 'but', 'by', 'by', 'came', 'child', 'child', 'children', 'could', 'could', "didn't", 'disappeared', 'find', 'find', 'find', 'for', 'for', 'for', 'fortune', 'from', 'get', 'get', 'go', 'go', 'gone', 'ground', 'grown', 'had', 'hear', 'help', 'if', 'if', 'is', 'it', 'it', 'it', 'it', 'it', 'it', 'it', 'it', 'left', 'look', 'lot', 'me', 'my', "neighbor's", 'of', 'of', 'one', 'only', 'only', 'our', 'out', 'parents', 'pay', 'playing', 'rise', 'said', 'she', 'she', 'story', 'stump', 'stump', 'supposedly', 'teller', 'the', 'the', 'the', 'the', 'the', 'the', 'there', 'they', 'they', 'they', 'they', 'this', 'time', 'to', 'to', 'to', 'to', 'treasure', 'treasure', 'treasure', 'up', 'up', 'was', 'was', 'was', 'were', 'when', 'would', 'would', "wouldn't"]
-
+```
 
 (I sometimes find even such basic abilities useful, when I am beginning work on a collection of texts.)
 
@@ -194,11 +194,13 @@ So far we have explored how we can use pattern matching to normalize a text stri
 
 Let's first recall the pieces of script we have already developed. The first is our code that will normalize our text:
 
+```python
     re.sub("[^a-zA-Z']"," ",open('../assets/uls-006.txt').read()).lower()
+```
 
 Python has a very efficient, and easy, way to handle opening a file, processing its contents, and then closing it: the `with` statement. Closing a file is terribly important. I try to imagine what my office would look like if I never closed a book: soon there would be nothing but great heaps of open books lying about. The `with` statement has its own built-in librarian, who tidies things up for you after your done. The logic of a `with` statement is simple:
 
-```
+```python
 with open("mytext.txt") as f:
     data = f.read()
     do something with data 
@@ -206,38 +208,40 @@ with open("mytext.txt") as f:
 
 We can substitute our own code in this structure now:
 
-
+```python
     with open('../assets/uls-006.txt') as f:
         fixed_text = re.sub("[^a-zA-Z']", " " , f.read().lower())
+```
 
 If you run the code above and add a third line, also indented, to the `with` statement, you will see the same results as above. 
 
 With out `with` logic in place, we want to be able to feed a series of objects to it so that we can work through our entire collection of texts. The way to work through a collection in Python, as in other languages, is to use a `for` statement. The logic looks like this:
 
-```
+```python
 for thing in collection:
     do this
 ```
 
 Implicit in this command is that the `for` loop is going to keep doing `this` until it runs out of `things`, at which point it stops. No more control logic is required us as writers. In our case, the collection is a folder (or directory) of texts. So the first thing we need to do is to turn that folder into a list of things on which `for` can work its magic. An easy way to do that is with the `glob` module:
 
-
+```python
     file_list = glob.glob('../assets/*.txt')
     print(file_list)
 
     ['../assets/anc-088.txt', '../assets/anc-089.txt', '../assets/anc-090.txt', '../assets/anc-091.txt', '../assets/lau-013.txt', '../assets/lau-014.txt', '../assets/loh-157.txt', '../assets/loh-158.txt', '../assets/loh-159.txt', '../assets/loh-160.txt', '../assets/loh-161.txt', '../assets/loh-162.txt', '../assets/loh-162b.txt', '../assets/loh-163.txt', '../assets/loh-164.txt', '../assets/loh-165.txt', '../assets/uls-001.txt', '../assets/uls-002.txt', '../assets/uls-003.txt', '../assets/uls-004.txt', '../assets/uls-005.txt', '../assets/uls-006.txt', '../assets/uls-007.txt']
-
+```
 
 Our first task, then, is to feed `for` this list. Remember, our logic is `for` **`thing`** `in` **`collection`**. In this instance **`thing`** is the item with which we want to do something within the for loop, and we get to choose the name. (It could be `thing`, if you like, but remember that choosing meaningful names is part of writing good code.) In this next bit of code, you'll note that I've chosen the names `fpath` and `f` for the two iterators. I like those two names because they are very straightforward, for me: the former is short for *filepath* which is what the `glob` module is in fact compiling into a list for me and `f` is shorthand for *file* which is what I want regex to work on.
 
-
+```python
     for fpath in glob.glob("../assets/*.txt"):
         with open(fpath) as f:
              fixed_text = re.sub("[^a-zA-Z']", " " , f.read().lower())
+```
 
 At this point, we haven't really told the `for` loop what to do with all this information. For now, to keep things simply, we are going to build a dictionary. In Python, a dictionary is simply a container for pairs of items, where one item is the key and the other the value. (When you look up a term in the dictionary, the term is the key that allows you to access the value you seek, the definition.) For this dictionary, we are going to use the filepath as the key and we are going to pair it with a pair of numbers that we are going to store in a tuple. 
 
-
+```python
     files = {}
     
     for fpath in glob.glob("../assets/*.txt"):
@@ -248,16 +252,17 @@ At this point, we haven't really told the `for` loop what to do with all this in
     print(files)
 
     {'../assets/lau-014.txt': [652, 204], '../assets/uls-005.txt': [188, 97], '../assets/anc-088.txt': [334, 142], '../assets/loh-159.txt': [279, 141], '../assets/loh-162b.txt': [192, 107], '../assets/loh-161.txt': [297, 129], '../assets/anc-089.txt': [153, 83], '../assets/lau-013.txt': [370, 170], '../assets/loh-157.txt': [367, 166], '../assets/uls-004.txt': [67, 49], '../assets/uls-001.txt': [117, 70], '../assets/anc-090.txt': [138, 72], '../assets/uls-003.txt': [136, 87], '../assets/loh-165.txt': [905, 277], '../assets/loh-164.txt': [1026, 315], '../assets/uls-006.txt': [109, 64], '../assets/loh-158.txt': [194, 107], '../assets/uls-007.txt': [234, 119], '../assets/anc-091.txt': [174, 103], '../assets/loh-162.txt': [331, 143], '../assets/loh-163.txt': [209, 113], '../assets/uls-002.txt': [122, 76], '../assets/loh-160.txt': [760, 285]}
-
+```
 
 ## Saving the Results
 
 Having compiled our texts and data points into a dictionary, we are close to done. We could, if we wanted to, simply run this script and grab the data from our console, or we could save it to a file:
 
-
+```python
     with open("textStats.csv", "w") as fileOut:
         for fname in files:
             print("{},{},{}".format(fname, files[fname][0], files[fname][1]), file=fileOut)
+```
 
 This time we have placed a `for` loop within a `with` statement. The `for` loop iterates over our dictionary, `files`, printing first the file name, which is the key, and then using the standard way of getting values out of a dictionary: dictionary[key]. Because our value is a list and we want one value then the other, and not both, we use a list index, 0 for the first value and 1 for the second value, to place them in the proper sequence as we build each line. 
 
@@ -265,7 +270,7 @@ With this final step, we have a CSV file that we can import into a spreadsheet a
 
 Here's the completed script, commented to make it easy to port elsewhere:
 
-
+```python
     #! /usr/bin/env python
     
     """textstats.py: basic statistics for a collection of text files"""
@@ -285,6 +290,7 @@ Here's the completed script, commented to make it easy to port elsewhere:
     with open("textStats.csv", "w") as fileOut:
         for fname in files:
             print("{},{},{}".format(fname, files[fname][0], files[fname][1]), file=fileOut)
+```
 
 ## A Simple Bar Chart
 
@@ -299,38 +305,42 @@ As before, we are going to rely upon some extended functionality that will requi
 
 We will start, as we did before, with a hash-bang declaration this is a Python executable program, then a doc-string description of the program, and finally any modules we want to import. Because we used a single line last time, this time we are using two lines, just to prove that it doesn't matter:
 
-
+```python
     #! /usr/bin/env python
     
     """textstatchart.py: a bar chart of basic statistics for a collection of text files"""
     
     import numpy as np
     import matplotlib.pyplot as plt
+```
 
 We are going to get a little fancy here and place the shorter bar, which will represent the vocabulary of a text, over the the bar that represents the length of the text. (As a folklorist, I am comfortable borrowing "lexicon" from linguists to refer to vocabulary, but you can you your own terminology.)
 
 To make this script as easy for me to think about as possible, I started with the three things I knew each text had: its name, the overall word count, and the lexical word count. I set up three blank lists:
 
-
+```python
     t_name = []
     t_length = []
     t_lexicon = []
+```
 
 With our lists created, it's time to start populating them. We first need to get our data out of the file we saved above, then we are going to break it into a series of strings within a list:
 
-
+```python
     readFile = open('textStats.csv', 'r').read()
     eachLine = readFile.split('\n')
     print(eachLine)
 
     ['ANC-088,334,142', 'ANC-089,153,83', 'ANC-090,138,72', 'ANC-091,174,103', 'LAU-013,370,170', 'LAU-014,652,204', 'LOH-157,367,166', 'LOH-158,194,107', 'LOH-159,279,141', 'LOH-160,760,285', 'LOH-161,297,129', 'LOH-162,331,143', 'LOH-162B,192,107', 'LOH-163,209,113', 'LOH-164,1026,315', 'LOH-165,905,277', 'ULS-001,117,70', 'ULS-002,122,76', 'ULS-003,136,87', 'ULS-004,67,49', 'ULS-005,188,97', 'ULS-006,109,64', 'ULS-007,234,119']
-
+```
 
 We have successfully read our file into a list of strings. With that done, we are going, again, to turn to the power of computing languages to handle iterative tasks and populate each of our three lists -- `name`, `length`, and `lexicon` -- with the appropriate data. The `for` loop below splits each line in our original list and then uses the power of indexes to build our three new lists by appending the appropriate item to each one.
 
 Recall that each line looks like this:
 
+```python
     ANC-088,334,142 
+```
 
 The first item is the filename and, in computerese, it's in the 0 position. The next item, the larger number, is the length of the text; it's in the first position. The final item is the lexical count in the second position. With that in mind, let's walk through the `for` loop:
 
@@ -344,7 +354,7 @@ The first item is the filename and, in computerese, it's in the 0 position. The 
 
 When we run the code and then check results for asking for the first item in each of the created lists, we see we get the expected results. 
 
-
+```python
     for line in eachLine:
         split = line.split(',')
         t_name.append(split[0])
@@ -354,7 +364,7 @@ When we run the code and then check results for asking for the first item in eac
     print(t_name[0],t_length[0],t_lexicon[0])
 
     ANC-088 334 142
-
+```
 
 What comes next is telling `matplotlib` how to use this information to create a graph. Unfortunately, I have not found a way to make working with `matplotlib` easy and clear. It's a very powerful library and I suspect that most users establish a small portfolio of "recipes" and turn to the documentation of StackOverflow whenever they want to do something different. My best advice is to try the script here and feel free to tweak it as you see fit. 
 
@@ -362,29 +372,32 @@ Let's see if we can't walk through building a graph. The first thing to do is to
 
 We now need to determine how high our y-axis needs to be, and to do that we need to find the longest text. We can sort that list in descending order -- `sorted(t_length, reverse=True)` -- and then store that value in `t_length_max`. (As you can see, I keep my variables very literal, making it easier to know right away what they are. It perhaps requires q few more key strokes as I type, but it more than makes up for it later when I've broken something and my confusion is already quite high.) However, I would rather not have my tallest bar reach all the way to the ceiling of my graph: I would like a little headroom. Because my texts are ranging in the hundreds, I'm going to round up to the nearest hundred. The easiest way to do that is to add a hundred, and then subtract the remainder if I was to divide by one hundred. The formula for doing so looks like this, and I have included a sample number so you can see how it works:
 
+```python
     t_length_max + 100 - (t_length_max % 100)
     
     t_length_max = 1026 + 100 = 1126
     t_length_max / 100 = 10 with a remainder of 26
     1126 - 26 = 1100 ==> y_max
+```
 
-We assign the value of this bit of math to `y_max`, knowing that in the future we won't ever have to worry about this, unless our texts decrease or increase radically in size, in which case we can just change 100 to 10 or to 1000 and we are good to go.
+We assign the value of this bit of math to `y_max`, knowing that in the future we won't ever have to worry about this again, unless our texts decrease or increase radically in size, in which case we can just change 100 to 10 or to 1000 and we are good to go.
 
 One final bit of fitting the graph to our data requires that we tell `matplotlib` where to place the bars: we need one spot on the x-axis for each bar. `numpy`'s range function does this for us, and, like the `x_max` above, I add one so that our first bar starts further in on the graph. (Try removing the `+ 1` from that line: the whole bar chart shifts to the left.)
 
 Here's what all of that looks like in our script:
 
-
+```python
     x_max = len(eachLine) + 1
     t_length_max = sorted(t_length, reverse=True)[0] 
     y_max = t_length_max + 100 - (t_length_max % 100)
     x_loc = np.arange(len(eachLine)) + 1
+```
 
-What follows, to my mind, occasionally border on voodoo, but there's not much more to do but to follow the advice and practice of others. (I have stared at dozens of bar chart scripts in an attempt to grok the logic of `pyplot` but it mostly continues to elude me.) Since we want to show two bars simultaneously, we are actually going to create two plots, imaginatively labeled here `plot_len` and `plot_lex` -- they were `plot_1` and `plot_2` for a long time but that seemed too Seussian to be useful. Inside the parentheses, the script tells `pyplot` where to locate the bars on the x-axis, how tall they should be, how wide, where their bottoms should be located -- we are not stacking bars here, so both start at 0, and that one bar is to be red and the other yellow, and they both should be centered.
+What follows, to my mind, occasionally borders on voodoo, but there's not much more to do but to follow the advice and practice of others. (I have stared at dozens of bar chart scripts in an attempt to grok the logic of `pyplot` but it mostly continues to elude me.) Since we want to show two bars simultaneously, we are actually going to create two plots, imaginatively labeled here `plot_len` and `plot_lex` -- they were `plot_1` and `plot_2` for a long time but that seemed too Seussian to be useful. Inside the parentheses, the script tells `pyplot` where to locate the bars on the x-axis, how tall they should be, how wide, where their bottoms should be located -- we are not stacking bars here, so both start at 0, and that one bar is to be red and the other yellow, and they both should be centered.
 
 The next five lines dictate the dimensions of our graph, label the two axes, give the graph a title, and label each of the bars. Once all that is done, we tell `pyplot` to show the results, or, as you'll see in the completed script at the end of this section, you can save the graph to a file.
 
-
+```python
     plot_len = plt.bar(x_loc, t_length, width=0.75, bottom=0, color='r', align='center')
     plot_lex = plt.bar(x_loc, t_lexicon, width=0.75, bottom=0, color='y', align='center')
     
@@ -396,13 +409,13 @@ The next five lines dictate the dimensions of our graph, label the two axes, giv
     
     plt.show()
 
+```
+
 {% include figure.html src="../images/textstats_files/textstats_43_0.png" caption="Bar Chart of Text Stats" %}
-
-
 
 Here is the complete script for generating a bar graph with overlapping bars. If you want to create a graph with only one set of bars, all you need to do is delete, or comment out, the line for `plot_lex`. Please note that `plt.show()` has been commented out and the `plt.save()` command added: it will save a PNG file in the current directory.
 
-
+```python
     #! /usr/bin/env python
     
     """textstatchart.py: a bar chart of basic statistics for a collection of text files"""
@@ -446,6 +459,7 @@ Here is the complete script for generating a bar graph with overlapping bars. If
     # Save or Show, Save or Show?
     #plt.show()
     plt.savefig("bar_graph.png", dpi=300)
+```
 
 {% include figure.html src="../images/textstats_45_0.png" caption="Caption to image" %}
 
@@ -456,16 +470,17 @@ This plot is perfectly reasonable, but it would be better if it were sorted so t
 
 To make it easier to follow, let's start at the beginning, adding the `pandas` module to our list of imports:
 
-
+```python
     #! /usr/bin/env python
     
     """tstatchart-df.py: a bar chart from a dataframe of text statistics"""
     
     import numpy as np, pandas as pd, matplotlib as mpl
+```
 
 We now need to import data into a dataframe, here called `df`. (I know, very imagination, but it's somewhat of a convention to use `df`: you will see it in a lot of `pandas` scripts, so my lack of imagination is actually a nod to tradition -- important for a folklorist.) Please note that the original `csv` has been edited to include a header which shows up as column labels in our dataframe:
 
-
+```python
     df = pd.read_csv("t_stats_labels.csv", ",")
     print(df)
 
@@ -493,11 +508,11 @@ We now need to import data into a dataframe, here called `df`. (I know, very ima
     20   ULS-005     188       97
     21   ULS-006     109       64
     22   ULS-007     234      119
-
+```
 
 It's a very tidy setup with very little work on our part. One line of code. Sorting by the longest text is just as easy:
 
-
+```python
     by_longest = df.sort(columns='length', ascending=False) 
     print(by_longest)
 
@@ -525,11 +540,11 @@ It's a very tidy setup with very little work on our part. One line of code. Sort
     16   ULS-001     117       70
     21   ULS-006     109       64
     19   ULS-004      67       49
-
+```
 
 Now all that needs to be done is to feed this data to `matplotlib` to generate our graph. As with our previous example, we have various specs to feed `pyplot`. We've already sorted the dataframe by the longest text, in the commands below we draw the two bars side-by-side and then determine the title, etc. It's important to note here that size in `mpl` is actually in inches and that you can add DPI if you like. Working in Jupyter notebook, I tend to use the figsize as a way to determine the best aspect ratio and then I use `plt.save()` to set the DPI for my figure. Everything else will be a bit clearer, having waded through the initial plotting above. 
 
-
+```python
     ax = by_longest[['length','lexicon']].plot(kind='bar', 
                                                title ="Text Stats",
                                                figsize=(20,10),
@@ -538,14 +553,14 @@ Now all that needs to be done is to feed this data to `matplotlib` to generate o
     ax.set_ylabel("Word Count")
     ax.set_xticklabels(list(by_longest['text'])) 
     mpl.pyplot.show()
-
+```
 
 {% include figure.html src="../images/textstats_53_0.png" caption="Caption to image" %}
 
 
 Here is the complete script. Note that I added a "style" just before we start drawing the graph. There are a number of these available, and users are, of course, free to create their own.
 
-
+```python
     #! /usr/bin/env python
     
     """tstatchart-df.py: a bar chart from a dataframe of text statistics"""
@@ -569,6 +584,7 @@ Here is the complete script. Note that I added a "style" just before we start dr
     ax.set_ylabel("Word Count",fontsize=12)
     ax.set_xticklabels(list(by_longest['text'])) 
     mpl.pyplot.show()
+```
 
 {% include figure.html src="../images/textstats_55_0.png" caption="Caption to image" %}
 
@@ -581,9 +597,9 @@ By focusing on some simple initial tasks, like understanding how long the texts 
 
 Like a lot of newbie Python coders, my first introduction to the language was _[Learning Python][]_ by Mark Lutz and David Ascher (O'Reilly, 2006), but I have learned quite a bit over the years from StackOverflow, where I read a lot and also ask the occasional question. ([This is me on SO.][so]) If you are interested in taking next steps in regex, Jeffrey Friedl's _[Masting Regular Expressions][]_ is a good place to start, and if you're ready to leap into natural language processing, please do check out _[Natural Language Processing with Python][]_ written by the authors of the module, Steven Bird, Ewan Klein, and Edward Loper. (And if you really, really want to know more about `matplotlib`, I have found Duncan McGreggor's _[Mastering matplotlib][]_ fairly useful. 
 
-*All the links above are to the O'Reilly pages, where you can purchase the electronic and/or print versions of the books. The electronic versions are available in PDF, Mobi, and ePub formats and are available for download in perpetuity as well as automagical syncing to a Dropbox account.*
+*All the links above are to the O'Reilly site pages, where you can purchase the electronic and/or print versions of the books. The electronic versions are available in PDF, Mobi, and ePub formats and are available for download in perpetuity as well as automagical syncing to a Dropbox account.*
 
-John Laudun is Professor of English at the University of Louisiana at Lafayette. As a folklorist, his work focuses on forms of expression and ideation embedded within a particular culture. His history of one such instance, _The Amazing Crawfish Boat_ will be published by the University Press of Mississippi in early 2016. More information can be found on [his website][jlo].
+John Laudun is Associate Professor of English at the University of Louisiana at Lafayette. As a folklorist, his work focuses on forms of expression and ideation embedded within a particular culture. His history of one such instance, _The Amazing Crawfish Boat_ will be published by the University Press of Mississippi in early 2016. More information can be found on [his website][jlo].
 
 [Learning Python]: http://shop.oreilly.com/product/0636920028154.do
 [so]: http://stackoverflow.com/users/1457672/john-laudun
