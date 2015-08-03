@@ -1,8 +1,3 @@
-
-
-    %matplotlib inline
-
-```
 ---
 title: Basic File Statistics
 authors:
@@ -12,11 +7,6 @@ reviewers:
 - unknown
 layout: default
 ---
-```
-
-For images:
-
-    {% include figure.html src="../images/filename" caption="Caption to image" %}
 
 For tables:
 ```
@@ -28,11 +18,13 @@ For tables:
 
 **Notes for Editors/Reviewers**
 
-* The iPython notebook in which I wrote this is included in the directory, in case anyone prefers to review the manuscript in that form. (It does an awfully job of generating markdown, with the exception of putting in fences for code blocks.)
+* All of the materials for this lesson are also in a repo on GitHub: https://github.com/johnlaudun/textstats. The iPython notebook in which I wrote this is included in the directory, in case anyone prefers to review the manuscript in that form. (It does an awfully good job of generating markdown, with the exception of putting in fences for code blocks.)
+* Speaking of code blocks, I've got a fair amount of "interactive" coding here. I.e., lines of code with results below. I wasn't sure how to handle this: I didn't see any clearcut examples among the current lessons that seem to show results in the same way, say, an O'Reilly book attempts to do so. (Maybe I looked at the wrong lessons for examples.)
 * While these scripts were begun under Python 2.7, they have been revised, and are now maintained, under Python 3.4. (I can build in an argument for Python 3.4, if that's advisable -- essentially all the modules for doing data analysis and/or NLP are now focused on development under Python 3.)
-* The only thing I present here is text statistics and graphing of those statistics, which is all I proposed. I could also, either here or in a separate post, demonstrate how to work with the NLTK to the kinds of things described in the tutorial on AntConc within Python -- e.g., KWiC searches, synonyms, antonyms, word frequencies, etc. (I also have scripts for transforming bimodal graphs into single mode network projections. [TL;DR: NetworkX documentation is sometimes inpenetrable but it can be done.])
+* The only thing I present here is text statistics and graphing of those statistics, which is all I proposed. I could also, either here or in a separate post, demonstrate how to work with the NLTK to do the kinds of things described in the tutorial on AntConc within Python -- e.g., KWiC searches, synonyms, antonyms, word frequencies, etc. (I also have scripts for transforming bimodal graphs into single mode network projections. [TL;DR: NetworkX documentation is sometimes impenetrable but it can be done.])
 * While I initially titled this idea/tutorial "mesoanalysis" -- which is the eventual goal of this work, this tutorial seems better called **text stats**. I'm happy to change it back and/or happy to write a brief note, at the start or end, about how these first steps can be extended. (I'd like to write some additional tutorials doing just that.)
 * Bio "blurb" is at the end of the post.
+
 
 ## Introduction
 
@@ -61,17 +53,20 @@ Because we want to be able to use this script in a lot of different places, we a
 
 Here's the start of our script:
 
-
+```python
     #! /usr/bin/env python
     
     """textstats.py: basic statistics for a collection of text files"""
     
     import glob, re
+```
 
 In addition to the two lines that declare, first, that this is a Python script, and, second, the name of the script and what it does, I have also included a third line. The reason is simple: we are going to need a bit of added functionality in our script, and, for that we will **`import`** two modules that are included with Python installations but are not loaded when you run Python unless you provide specific instructions to do so. The import instructions, by the way, could just as easily be written as two separate lines, and you will just as often see them written that way:
 
+```python
     import glob
     import re
+```
 
 I have chosen the more compact way of writing them here to introduce readers to the idea that there are different ways of writing Python code, and so long as they get the job done in a way acceptable to you, then that is acceptable. It doesn't matter which order you import these two modules, I just happen to import them in the order they get called in the code that follows, but that's really more an artifact of how I wrote this script: I wrote the **`glob`** part first and made sure it was doing what I wanted it to do, and then I added the regular expression funcationality of the **`re`** module. (We are going to do some testing along the way ourselves in this lesson, so we can see the results of various commands. Knowing the results of each of the steps in a larger program will make it easier for you to disassemble and re-assemble the code so you can get different, probably better, results.)
 
@@ -79,7 +74,9 @@ Let's take a moment to discuss the functionality of these two modules, just so w
 
 Our second import is Python's **`regular expression`** module, which is named **`re`** -- it's important that you use the proper name for a module, otherwise it will not be imported and you will not be the beneficiary of its functionality. In many cases, for modules with longer names, there is an established conversation for importing the module with a shortened name, to make writing code a bit easier. For instance, the popular Python data analysis module **`pandas`** module is almost always imported as **`pd`** and that is easy as writing:
 
+```python
     import pandas as pd
+```
 
 The regular expressions of the **`re`** module are going to let us do some quick clean up of our texts, as we will see in a moment. A more comprehensive explanation of regular expressions can be found in the lesson on ["Understanding Regular Expressions][ure] and on ["Cleaning OCR’d text with Regular Expressions"][cre]. For now, we need only consider regular expressions a way to search text with as much precision, or as much openness, as we like. We can transform the found text however we like.
 
@@ -101,7 +98,7 @@ So, our multi-step process looks like this:
 
 If you remember that those things may not necessarily occur in the same order when we are building a script, then the script below will not look too strange:
 
-```
+```python
 files = {}
 for fpath in glob.glob("./assets/*.txt"):
     with open(fpath) as f:
@@ -134,51 +131,52 @@ One way to see what's going on in a longer script is to write and try out smalle
 
 Let's see what happens when we run the regex pattern `[^a-zA-Z'-]` and ask Python module to substitute spaces:
 
-
+```python
     one_fixed_text = re.sub("[^a-zA-Z']"," ",open('../assets/uls-006.txt').read())
     print(one_fixed_text)
 
     Me and my brothers would hear this story a lot from one of our neighbor's parents  she said she was a fortune teller   Supposedly  there was treasure buried by a stump and only a child could find it   The treasure would rise up out of the ground and appear to the children   The only time a child could find it is if they were playing by the stump  but if they left to go get help to get the treasure  when they came back for it  it was gone   It had disappeared   It didn't pay for a grown up to go look for it because they wouldn't find it 
-
+```
 
 That does a pretty good job. A more complex bit of regex would find all the *not* contractions and separate the two words, e.g., *wouldn't* would become *would* and *not* but since most of the contractions are in helper verbs that will not play much, in any, of a role in later analyses, I think we can let them stand.
 
 The only other thing that remains is to make everything lower case in order to make counting words more consistent, and we can do that by simply appending the `.lower()` method to our code like this:
 
-
+```python
     one_fixed_text = re.sub("[^a-zA-Z']"," ",open('../assets/uls-006.txt').read()).lower()
     print(one_fixed_text)
 
     me and my brothers would hear this story a lot from one of our neighbor's parents  she said she was a fortune teller   supposedly  there was treasure buried by a stump and only a child could find it   the treasure would rise up out of the ground and appear to the children   the only time a child could find it is if they were playing by the stump  but if they left to go get help to get the treasure  when they came back for it  it was gone   it had disappeared   it didn't pay for a grown up to go look for it because they wouldn't find it 
-
+```
 
 ## Counting Words
 
 Now that we have established a way to clean up our texts, we need to count the words in each text. This is an easy task in Python First, we split the text, which has so far remained a string, into a list of words:
 
-
+```python
     split_text = one_fixed_text.split()
     print(split_text)
+```
 
 There are two reasons for splitting our text string into a list of words. The first has to do with a question you may have asked yourself: *why not get the length of the string itself?* The answer to this question comes in the form of the way that Python thinks about the make-up of strings: each item in a string, be it a character, a number, a punctuation mark, or a space, is an entity, and each one gets counted. If we break a string into a list of words, using the `split()` method and then ask how many items are in the list, we get back an accurate count:
 
-
+```python
     print(len(one_fixed_text)) # returns a count of all the items in the string
     print(len(split_text))     # returns a count of all the items in the list of words
 
     542
     109
-
+```
 
 The second reason for splitting our text string into a list of words is the incredibly useful `set` function that works magic on lists in Python, allowing us to quickly reduce the total number of words to a count of the individual words used. In the lines that follow, we will first get that set of words and then we will get a count of those words:
 
-
+```python
     print(sorted(set(split_text)))
     print(len(set(split_text)))
 
     ['a', 'and', 'appear', 'back', 'because', 'brothers', 'buried', 'but', 'by', 'came', 'child', 'children', 'could', "didn't", 'disappeared', 'find', 'for', 'fortune', 'from', 'get', 'go', 'gone', 'ground', 'grown', 'had', 'hear', 'help', 'if', 'is', 'it', 'left', 'look', 'lot', 'me', 'my', "neighbor's", 'of', 'one', 'only', 'our', 'out', 'parents', 'pay', 'playing', 'rise', 'said', 'she', 'story', 'stump', 'supposedly', 'teller', 'the', 'there', 'they', 'this', 'time', 'to', 'treasure', 'up', 'was', 'were', 'when', 'would', "wouldn't"]
     64
-
+```
 
 As an aid to reading, I have `sorted` the set above, but that's only for my human eyes. It's important to remember that sets themselves are not ordered and that we do not need them to be if all we are interested in is the count of items. It's nice to know, however, that you can use sort on lists and sets whenever you need or like. Here's what our text would look like sorted:
 
